@@ -201,3 +201,11 @@ resource "aws_route53_record" "domain_record" {
   records    = [aws_opensearch_domain.opensearch.endpoint]
   depends_on = [aws_opensearch_domain.opensearch]
 }
+
+resource "aws_ssm_parameter" "opensearch_master_user" {
+  count       = var.internal_user_database_enabled ? 1 : 0
+  name        = "/opensearch/${var.name}/MASTER_USER"
+  description = "opensearch_password for ${var.name} domain"
+  type        = "SecureString"
+  value       = "${var.master_user_name},${coalesce(var.master_password, random_password.password.result)}"
+}
